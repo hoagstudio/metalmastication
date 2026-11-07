@@ -1,0 +1,388 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import { youtubeChannel, subscribeUrl } from '../data/episodes';
+
+interface Props {
+  title: string;
+  description: string;
+  current?: 'home' | 'about';
+}
+
+const { title, description, current } = Astro.props;
+const ogImage = new URL('/favicon.png', Astro.site ?? Astro.url).href;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0b0b0d" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Metal Mastication" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/" aria-label="Metal Mastication home">
+          <Image src={logo} alt="" width={44} height={44} densities={[1, 2]} class="brand-logo" />
+          <span class="brand-name">Metal Mastication</span>
+        </a>
+        <nav class="nav" aria-label="Main">
+          <a href="/#episodes">Episodes</a>
+          <a href="/about" aria-current={current === 'about' ? 'page' : undefined}>About</a>
+          <a class="btn btn-small" href={youtubeChannel} target="_blank" rel="noopener">YouTube</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <section class="subscribe" aria-labelledby="subscribe-title">
+      <div class="wrap">
+        <p class="kicker">Horns up \m/</p>
+        <h2 id="subscribe-title">Pull up a chair</h2>
+        <p>New episodes land on YouTube. Subscribe so you don't miss what's cooking.</p>
+        <a class="btn" href={subscribeUrl} target="_blank" rel="noopener">Subscribe on YouTube</a>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <p>© {year} Metal Mastication · A Hoag Studio production in conjunction with Pulli Entertainment</p>
+        <p><a href={youtubeChannel} target="_blank" rel="noopener">youtube.com/@Metal_Mastication</a></p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #0b0b0d;
+    --surface: #131317;
+    --surface-2: #1a1a20;
+    --line: #2a2a33;
+    --text: #ecebe7;
+    --body-text: #d4d3cf;
+    --muted: #a3a2ab;
+    --accent: #6d28d9;
+    --accent-hover: #7c3aed;
+    --accent-text: #c4b5fd;
+    --glow: rgba(109, 40, 217, 0.32);
+    --steel: linear-gradient(180deg, #f2f3f5 0%, #c8cbd1 46%, #9599a2 54%, #cfd2d7 100%);
+    --display: 'Anton', Impact, 'Arial Narrow Bold', sans-serif;
+    --body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --radius: 6px;
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--body-text);
+    font: 400 1.0625rem/1.65 var(--body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: var(--accent-text);
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0 0 0.35em;
+    color: var(--text);
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0 0 1em;
+  }
+
+  .wrap {
+    width: min(1140px, 100% - 2rem);
+    margin-inline: auto;
+  }
+
+  .skip {
+    position: absolute;
+    left: -9999px;
+  }
+
+  .skip:focus {
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ---------- Shared pieces ---------- */
+
+  .kicker {
+    margin: 0 0 0.9rem;
+    color: var(--accent-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* A steel plate with rivets, like the bar in the logo */
+  .plate {
+    position: relative;
+    display: inline-block;
+    margin: 0 0 1.5rem;
+    padding: 0.3rem 1.6rem 0.25rem;
+    background: var(--steel);
+    border-radius: 3px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 2px 0 rgba(0, 0, 0, 0.6);
+    color: #2e1065;
+    font-family: var(--display);
+    font-size: 1.05rem;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .plate::before,
+  .plate::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #5f636b);
+  }
+
+  .plate::before {
+    left: 0.55rem;
+  }
+
+  .plate::after {
+    right: 0.55rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .btn:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: #4a4a56;
+    color: var(--text);
+  }
+
+  .btn-ghost:hover {
+    background: transparent;
+    border-color: var(--accent-text);
+  }
+
+  .btn-small {
+    padding: 0.55rem 0.95rem;
+    font-size: 0.72rem;
+  }
+
+  .btn:focus-visible,
+  .nav a:focus-visible,
+  .brand:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Header ---------- */
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(11, 11, 13, 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-name {
+    font-family: var(--display);
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.9rem, 3vw, 1.75rem);
+  }
+
+  .nav a:not(.btn) {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav a:not(.btn):hover,
+  .nav a[aria-current='page'] {
+    color: var(--text);
+  }
+
+  .nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.5em;
+  }
+
+  /* ---------- Subscribe band + footer ---------- */
+
+  .subscribe {
+    padding: clamp(3.5rem, 8vw, 6rem) 0;
+    text-align: center;
+    background:
+      radial-gradient(60% 120% at 50% 100%, var(--glow), transparent 70%),
+      var(--bg);
+    border-top: 1px solid var(--line);
+  }
+
+  .subscribe h2 {
+    font-size: clamp(2.6rem, 7vw, 4.5rem);
+  }
+
+  .subscribe p:not(.kicker) {
+    max-width: 44ch;
+    margin: 0 auto 1.75rem;
+    color: var(--muted);
+  }
+
+  .site-footer {
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+
+  .footer-inner p {
+    margin: 0;
+  }
+
+  .footer-inner a {
+    color: var(--muted);
+  }
+
+  .footer-inner a:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 520px) {
+    .brand-name {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>

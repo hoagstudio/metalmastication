@@ -1,0 +1,287 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import { episodes, seasons } from '../data/episodes';
+
+// Any photo dropped into src/assets/gallery shows up in the gallery,
+// in file-name order. Add a caption below to give it alt text.
+const photoModules = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/gallery/*.{jpg,jpeg,png,webp}',
+  { eager: true }
+);
+
+const captions: Record<string, string> = {
+  'james-pulli-at-metal-mastication-1.jpg': 'Brett Hoag and James Pulli in the kitchen',
+  'james-pulli-lasagna-1.jpg': 'James Pulli cutting into the Goodfellas lasagna',
+  'james-pulli-advice-1.jpg': 'James Pulli giving advice in the kitchen',
+  'james-pulli-metal-hall-of-fame-bw.jpg': 'James Pulli playing bass on stage',
+};
+
+const photos = Object.entries(photoModules)
+  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+  .map(([path, module]) => {
+    const file = path.split('/').pop() ?? '';
+    return { src: module.default, alt: captions[file] ?? 'Behind the scenes at Metal Mastication' };
+  });
+
+const seasonCount = seasons().length;
+---
+
+<Layout
+  title="About | Metal Mastication"
+  description="Metal Mastication is the most mouth-watering interview show in heavy metal: host Brett Hoag in the kitchen with metal's finest."
+  current="about"
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="plate">MM's story</p>
+      <h1>About Metal Mastication</h1>
+      <p class="sub">The ultimate fusion of music and culinary chaos.</p>
+    </div>
+  </section>
+
+  <section class="story-section">
+    <div class="wrap story-grid">
+      <article class="story">
+        <p class="intro">
+          Hail, and welcome to Metal Mastication, the most mouth-watering interview show in the realm of heavy
+          metal! In each episode, we step into the fiery kitchens of metal's finest, where things get loud,
+          delicious, and just a little bit crazy.
+        </p>
+
+        <p>
+          Picture this: the host, Brett Hoag, a gastronomic rebel with an insatiable passion for food and music,
+          sets off on a culinary journey unlike anything the world has seen. In the pilot episode, Brett is
+          invited into the lair of legendary bassist and Metal Hall of Fame inductee James Pulli of Impellitteri,
+          known for his shredding skills both on stage and in the kitchen.
+        </p>
+
+        <p>
+          As the opening riff of our theme song rips into the background, the camera zooms in to reveal Brett,
+          in a Metal Hall of Fame black T-shirt, standing in James Pulli's kitchen. The room already smells
+          glorious, thanks to the sauce Pulli prepared in advance. Brett introduces Pulli, who steps in like a
+          friendly mafioso, surrounded by veal, cheese, tomatoes and fresh herbs.
+        </p>
+
+        <p>
+          But this show is not just about making lasagna with the sauce from the prison scene in Goodfellas (no
+          matter how cool that is). It's a symphony of flavors and headbanging goodness. The conversation begins
+          as Pulli and Hoag prepare a dish with as much attitude as an Impellitteri breakdown. Surrounded by pots
+          and pans, the duo dives into life on the road, memorable gigs, and the connection between the primal
+          sounds of metal and the art of cooking.
+        </p>
+
+        <p>
+          Pulli tells us about his early influences, playing in nightclubs at a young age, and previously untold
+          stories that might get him in trouble with old Nonna ("Sorry, Mom!"). He shares his high school
+          yearbook with us and describes his audition with Impellitteri.
+        </p>
+
+        <p>
+          Finally, the dish is plated, a masterpiece born from the fierce collaboration between the two. The
+          taste explodes on the palate, thundering across their taste buds like James's bass lines, proving that
+          food and heavy metal are intertwined in a fiery union.
+        </p>
+
+        <blockquote class="pull">Metal Mastication is not a cooking show.</blockquote>
+
+        <p>
+          It's a celebration of the rebellious spirit of metal, the power of music, and the unbridled joy of
+          creating something extraordinary. So join our host, Brett Hoag, and the mightiest metal maestros as
+          they merge culinary artistry with the unrestrained energy of heavy metal. Prepare for a dining
+          experience that leaves your taste buds headbanging and craving more!
+        </p>
+
+        <p class="signoff">Horns up \m/</p>
+      </article>
+
+      <aside class="facts" aria-label="The show at a glance">
+        <dl>
+          <div>
+            <dt>Host</dt>
+            <dd>Brett Hoag</dd>
+          </div>
+          <div>
+            <dt>Seasons</dt>
+            <dd>{seasonCount}</dd>
+          </div>
+          <div>
+            <dt>Episodes</dt>
+            <dd>{episodes.length}</dd>
+          </div>
+          <div>
+            <dt>Where to watch</dt>
+            <dd><a href="https://www.youtube.com/@Metal_Mastication" target="_blank" rel="noopener">YouTube</a></dd>
+          </div>
+        </dl>
+        <a class="btn" href="/#episodes">Watch the episodes</a>
+      </aside>
+    </div>
+  </section>
+
+  {
+    photos.length > 0 && (
+      <section class="gallery-section" aria-labelledby="gallery-title">
+        <div class="wrap">
+          <h2 id="gallery-title">Gallery</h2>
+          <p class="gallery-caption">In the kitchen with James Pulli and Brett Hoag.</p>
+          <div class="gallery">
+            {photos.map((photo) => (
+              <figure>
+                <Image src={photo.src} alt={photo.alt} widths={[400, 800]} sizes="(min-width: 900px) 360px, 100vw" />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Layout>
+
+<style>
+  .page-head {
+    padding: clamp(3rem, 8vw, 5.5rem) 0 clamp(2rem, 5vw, 3rem);
+    background:
+      radial-gradient(50% 90% at 85% 0%, var(--glow), transparent 70%),
+      var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 5.75rem);
+  }
+
+  .sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  }
+
+  .story-section {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+  }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 68ch) minmax(220px, 300px);
+    justify-content: space-between;
+    align-items: start;
+    gap: 3rem;
+  }
+
+  .story p {
+    margin-bottom: 1.3em;
+  }
+
+  .story .intro {
+    color: var(--text);
+    font-size: clamp(1.2rem, 2vw, 1.4rem);
+    line-height: 1.5;
+  }
+
+  .pull {
+    margin: 2.5rem 0 1.5rem;
+    padding-left: 1.25rem;
+    border-left: 4px solid var(--accent);
+    color: var(--text);
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .signoff {
+    color: var(--accent-text);
+    font-family: var(--display);
+    font-size: 1.9rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .facts {
+    position: sticky;
+    top: 6rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .facts dl {
+    margin: 0 0 1.5rem;
+  }
+
+  .facts dl > div {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .facts dl > div:first-child {
+    padding-top: 0;
+  }
+
+  .facts dt {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .facts dd {
+    margin: 0.15rem 0 0;
+    color: var(--text);
+    font-family: var(--display);
+    font-size: 1.5rem;
+    text-transform: uppercase;
+  }
+
+  .facts .btn {
+    width: 100%;
+  }
+
+  .gallery-section {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+  }
+
+  .gallery-section h2 {
+    font-size: clamp(2.4rem, 5vw, 3.5rem);
+  }
+
+  .gallery-caption {
+    margin-bottom: 2rem;
+    color: var(--muted);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 1rem;
+  }
+
+  .gallery figure {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    aspect-ratio: 1;
+  }
+
+  .gallery :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 860px) {
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .facts {
+      position: static;
+    }
+  }
+</style>

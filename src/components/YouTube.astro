@@ -1,0 +1,190 @@
+---
+// A light YouTube player: shows the thumbnail and only loads YouTube
+// when someone clicks play, so the page stays fast.
+import type { EpisodePart } from '../data/episodes';
+import { formatLength } from '../data/episodes';
+
+interface Props {
+  id: string;
+  title: string;
+  eager?: boolean;
+  parts?: EpisodePart[];
+}
+
+const { id, title, eager = false, parts } = Astro.props;
+const thumb = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+---
+
+<div class="player">
+  <div class="yt" data-id={id} data-title={title}>
+    <button type="button" class="yt-play" aria-label={`Play: ${title}`}>
+      <img
+        src={thumb}
+        alt=""
+        width="1280"
+        height="720"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+      <span class="yt-icon" aria-hidden="true">
+        <svg viewBox="0 0 68 48" width="68" height="48">
+          <path
+            d="M66.5 7.7a8.5 8.5 0 0 0-6-6C55.3.3 34 .3 34 .3s-21.3 0-26.5 1.4a8.5 8.5 0 0 0-6 6C.1 12.9.1 24 .1 24s0 11.1 1.4 16.3a8.5 8.5 0 0 0 6 6C12.7 47.7 34 47.7 34 47.7s21.3 0 26.5-1.4a8.5 8.5 0 0 0 6-6C67.9 35.1 67.9 24 67.9 24s0-11.1-1.4-16.3z"
+            fill="#6d28d9"></path>
+          <path d="M45 24 27 14v20z" fill="#fff"></path>
+        </svg>
+      </span>
+    </button>
+  </div>
+
+  {
+    parts && (
+      <div class="parts" role="group" aria-label="Choose a part">
+        {parts.map((part, i) => (
+          <button
+            type="button"
+            class="part"
+            data-id={part.youtubeId}
+            data-title={part.title}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          >
+            {part.label}
+            <span>{formatLength(part.seconds)}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<script>
+  function play(yt: HTMLElement) {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${yt.dataset.id}?autoplay=1&rel=0`;
+    iframe.title = yt.dataset.title ?? 'YouTube video';
+    iframe.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    yt.replaceChildren(iframe);
+  }
+
+  document.querySelectorAll<HTMLElement>('.yt').forEach((yt) => {
+    yt.querySelector('.yt-play')?.addEventListener('click', () => play(yt));
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.part').forEach((button) => {
+    button.addEventListener('click', () => {
+      const player = button.closest('.player');
+      const yt = player?.querySelector<HTMLElement>('.yt');
+      if (!player || !yt) return;
+      yt.dataset.id = button.dataset.id;
+      yt.dataset.title = button.dataset.title;
+      player.querySelectorAll('.part').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      play(yt);
+    });
+  });
+</script>
+
+<style>
+  .yt {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .yt-play {
+    all: unset;
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .yt-play img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  .yt-play:hover img {
+    transform: scale(1.03);
+    filter: brightness(1.1);
+  }
+
+  .yt-play:focus-visible {
+    outline: 3px solid var(--accent-text);
+    outline-offset: -3px;
+  }
+
+  .yt-icon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+    transition: transform 0.2s ease;
+  }
+
+  .yt-play:hover .yt-icon {
+    transform: scale(1.08);
+  }
+
+  .yt :global(iframe) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .parts {
+    display: flex;
+    gap: 1px;
+    background: var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .part {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    border: 0;
+    background: var(--surface-2);
+    color: var(--muted);
+    font: 600 0.78rem/1.2 var(--body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .part span {
+    display: block;
+    margin-top: 0.15rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    opacity: 0.75;
+  }
+
+  .part:hover {
+    color: var(--text);
+  }
+
+  .part[aria-pressed='true'] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .part:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: -2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yt-play img,
+    .yt-icon {
+      transition: none;
+    }
+  }
+</style>
